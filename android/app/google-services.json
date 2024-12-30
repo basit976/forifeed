@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "577943125304",
+    "project_id": "flutterfori",
+    "storage_bucket": "flutterfori.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:577943125304:android:4e2a26b41cec56254155cd",
+        "android_client_info": {
+          "package_name": "com.example.fori_feed"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAdqfi5cqIvwNEvxzpr5CIRGjmL0_gmOrg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
