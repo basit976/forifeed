@@ -491,7 +491,7 @@ final allCommentsQuery = await FirebaseFirestore.instance
 Future<String> analyzeSentiment(String commentText) async {
     const String openAiApiUrl = 'https://api.openai.com/v1/chat/completions';
     const String apiKey =
-        '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';
+        'your-key';
 
     final response = await http.post(
       Uri.parse(openAiApiUrl),
