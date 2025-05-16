@@ -595,7 +595,7 @@ final firebaseService = FirebaseService();
   Future<String> analyzeSentiment(String commentText) async {
     const String openAiApiUrl = 'https://api.openai.com/v1/chat/completions';
     const String apiKey =
-        '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';
+        '';
 
     final response = await http.post(
       Uri.parse(openAiApiUrl),
