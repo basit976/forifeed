@@ -1,109 +1,194 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:html/parser.dart' as html_parser;
+import './News_Screen2.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 class OfflineArticleScreen extends StatefulWidget {
   final String articleId;
 
-  OfflineArticleScreen({required this.articleId});
+  const OfflineArticleScreen({Key? key, required this.articleId}) : super(key: key);
 
   @override
   _OfflineArticleScreenState createState() => _OfflineArticleScreenState();
 }
 
 class _OfflineArticleScreenState extends State<OfflineArticleScreen> {
-  String articleContent = '';
+  List<Map<String, String>> offlineArticles = [];
   bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    fetchArticle();
+    fetchOfflineArticles();
   }
 
-  Future<void> saveArticleForOffline({
-    required String fullHtmlContent,
-    required String title,
-  }) async {
+  Future<void> fetchOfflineArticles() async {
     try {
-      final document = html_parser.parse(fullHtmlContent);
-      final cleanContent = document.body?.text ?? 'No readable content';
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        setState(() {
+          offlineArticles = [];
+          isLoading = false;
+        });
+        return;
+      }
 
-      // Log the raw fullHtmlContent
-      print("Raw HTML content: $fullHtmlContent");
-
-      // Log cleaned content
-      print('Cleaned and parsed content: $cleanContent');
-
-      // Ensure only cleaned content is stored into Firestore
-      await FirebaseFirestore.instance.collection('offline_articles').add({
-        'content': cleanContent,
-        'title': title,
-        'timestamp': DateTime.now().toUtc(),
-      });
-
-      print("Article successfully saved for offline reading!");
-    } catch (e) {
-      print("Error saving article: $e");
-    }
-  }
-
-  Future<void> fetchArticle() async {
-    try {
-      final snapshot = await FirebaseFirestore.instance
+      QuerySnapshot snapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
           .collection('offline_articles')
-          .doc(widget.articleId)
           .get();
 
-      // Log raw fetched snapshot for visibility
-      print("Raw snapshot data: ${snapshot.data()}");
+      List<Map<String, String>> articles = snapshot.docs.map((doc) {
+        final data = doc.data() as Map<String, dynamic>?; // Ensure data is a map or null
+        return {
+          'title': doc.id, // Document ID as title
+          'link': (data != null && data["title"] is String) ? data["title"] as String : "", // Ensuring a String value for 'link'
+        };
+      }).toList();
 
-      if (snapshot.exists) {
-        final fetchedContent = snapshot['content'];
-
-        // Log what content is being rendered
-        print('Fetched content from Firestore: $fetchedContent');
-
-        setState(() {
-          articleContent = fetchedContent ?? 'No valid data found';
-          isLoading = false;
-        });
-      } else {
-        setState(() {
-          articleContent = 'No offline article found';
-          isLoading = false;
-        });
-      }
-    } catch (e) {
-      print("Error fetching content: $e");
       setState(() {
-        articleContent = 'Error loading offline content';
+        offlineArticles = articles;
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        offlineArticles = [];
         isLoading = false;
       });
     }
   }
 
+  void openArticle(String url) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => WebViewScreen(url: url)), // ✅ Fixed WebViewScreen
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Offline Article'),
+        title: Text("Offline Articles", style: TextStyle(fontWeight: FontWeight.bold)),
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF1A237E), Color(0xFF0D47A1)],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
+          ),
+        ),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
       ),
-      body: isLoading
-          ? Center(child: CircularProgressIndicator())
-          : Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: SingleChildScrollView(
-          child: Text(
-            articleContent.isNotEmpty
-                ? articleContent
-                : 'Error loading article...',
-            style: TextStyle(fontSize: 16),
+      body: SafeArea(
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF1A237E), Color(0xFF0D47A1), Color(0xFF64B5F6)],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
+          ),
+          child: isLoading
+              ? Center(child: CircularProgressIndicator(color: Colors.white))
+              : offlineArticles.isEmpty
+              ? Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.error_outline, size: 50, color: Colors.white),
+                SizedBox(height: 10),
+                Text(
+                  "No offline articles found.",
+                  style: TextStyle(fontSize: 18, color: Colors.white),
+                ),
+              ],
+            ),
+          )
+              : Padding(
+            padding: EdgeInsets.only(top: 10),
+            child: ListView.builder(
+              padding: EdgeInsets.all(12),
+              itemCount: offlineArticles.length,
+              itemBuilder: (context, index) {
+                return Card(
+                  color: Colors.white.withOpacity(0.9),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                  elevation: 4,
+                  child: ListTile(
+                    title: Text(
+                      offlineArticles[index]['title']!,
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black),
+                    ),
+                    leading: Icon(Icons.article, color: Colors.blueAccent),
+                    trailing: Icon(Icons.arrow_forward_ios, color: Colors.blueAccent),
+                    onTap: () {
+                      openArticle(offlineArticles[index]['link']!);
+                    },
+                  ),
+                );
+              },
+            ),
           ),
         ),
       ),
+      bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: Colors.blue.shade900.withOpacity(0.8),
+        selectedItemColor: Colors.blueAccent,
+        unselectedItemColor: Colors.blueAccent,
+        currentIndex: 2,
+        onTap: (index) {
+          if (index == 0) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => NewsScreen2()),
+            );
+          }
+        },
+        items: [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
+          BottomNavigationBarItem(icon: Icon(Icons.analytics), label: "Analytics"),
+          BottomNavigationBarItem(icon: Icon(Icons.wifi_off), label: "Non-Wifi News"),
+          BottomNavigationBarItem(icon: Icon(Icons.account_circle), label: "Account"),
+        ],
+      ),
+    );
+  }
+}
+
+class WebViewScreen extends StatefulWidget {
+  final String url;
+
+  const WebViewScreen({Key? key, required this.url}) : super(key: key);
+
+  @override
+  _WebViewScreenState createState() => _WebViewScreenState();
+}
+
+class _WebViewScreenState extends State<WebViewScreen> {
+  late final WebViewController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = WebViewController()
+      ..setJavaScriptMode(JavaScriptMode.unrestricted) // ✅ Fixed JavaScriptMode
+      ..loadRequest(Uri.parse(widget.url)); // ✅ Fixed URL parsing
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Article")),
+      body: WebViewWidget(controller: controller), // ✅ Fixed WebView usage
     );
   }
 }

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'Article_Categ.dart';
 import 'package:http/http.dart' as http;
 import 'package:xml/xml.dart' as xml;
@@ -13,6 +14,7 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 
 import 'firebase_service.dart';
+import 'offlineArticleScreen.dart';
 
 
 
@@ -25,7 +27,7 @@ class CategEntertainment extends StatefulWidget {
 
 
 class _CategEntertainmentState extends State<CategEntertainment> {
-List<Map<String, dynamic>> _geoNewsItems = [];
+  List<Map<String, dynamic>> _geoNewsItems = [];
   List<Map<String, dynamic>> _aSportsNewsItems = [];
   List<Map<String, dynamic>> _dawnNewsItems = [];
   List<Map<String, dynamic>> _AlmashriqnewsItems = [];
@@ -61,6 +63,7 @@ List<Map<String, dynamic>> _geoNewsItems = [];
   bool _isLoadingny = true;
   bool _isLoadinggoogle = true;
 
+final firebaseService = FirebaseService();
 
 
 
@@ -93,7 +96,7 @@ List<Map<String, dynamic>> _geoNewsItems = [];
 
       // First Link
       await _fetchNews('Geo News',
-      
+
         'https://rss.app/feeds/BXZghwOWHHKcPiZG.xml',
             (news) {
           combinedNews.addAll(news);
@@ -102,7 +105,7 @@ List<Map<String, dynamic>> _geoNewsItems = [];
 
       // Second Link
       await _fetchNews('Geo News',
-      
+
         'https://www.geo.tv/rss/1/5',
             (news) {
           combinedNews.addAll(news);
@@ -123,7 +126,7 @@ List<Map<String, dynamic>> _geoNewsItems = [];
 
   Future<void> _fetchASportsNews() async {
     await _fetchNews('ASports',
-      
+
       'https://a-sports.tv/feed/',
           (news) => setState(() {
         _aSportsNewsItems = news;
@@ -134,7 +137,7 @@ List<Map<String, dynamic>> _geoNewsItems = [];
 
   Future<void> _fetchDawnNews() async {
     await _fetchNews('Dawn',
-      
+
       'https://images.dawn.com/feeds/celebrity/',
           (news) => setState(() {
         _dawnNewsItems = news;
@@ -145,7 +148,7 @@ List<Map<String, dynamic>> _geoNewsItems = [];
 
   Future<void> _fetchAlmashriqNews() async {
     await _fetchNews('Mashriq TV',
-      
+
       'https://mashriqtv.pk/category/entertainment/feed/',
           (news) => setState(() {
         _AlmashriqnewsItems = news;
@@ -155,7 +158,7 @@ List<Map<String, dynamic>> _geoNewsItems = [];
   }
   Future<void> _fetchGnnNews() async {
     await _fetchNews('GNN',
-      
+
       'https://gnnhd.tv/rss/entertainment',
           (news) => setState(() {
         _GnnNewsItems= news;
@@ -165,7 +168,7 @@ List<Map<String, dynamic>> _geoNewsItems = [];
   }
   Future<void> _fetchbbcNews() async {
     await _fetchNews('GNN',
-      
+
       'https://gnnhd.tv/rss/sports',
           (news) => setState(() {
         _bbcNewsItems= news;
@@ -175,7 +178,7 @@ List<Map<String, dynamic>> _geoNewsItems = [];
   }
   Future<void> _fetchnyNews() async {
     await _fetchNews('The New York Times',
-      
+
       'https://www.nytimes.com/svc/collections/v1/publish/https://www.nytimes.com/spotlight/lifestyle/rss.xml',
           (news) => setState(() {
         _nyNewsItems= news;
@@ -185,7 +188,7 @@ List<Map<String, dynamic>> _geoNewsItems = [];
   }
   Future<void> _fetchAajTvNews() async {
     await _fetchNews('Aaj tv',
-      
+
       'https://www.aaj.tv/feeds/life-style/',
           (news) => setState(() {
         _AajTvNewsItems = news;
@@ -196,7 +199,7 @@ List<Map<String, dynamic>> _geoNewsItems = [];
 
   Future<void> _fetchAbtakkNews() async {
     await _fetchNews('Ab Takk News',
-      
+
       'https://abbtakk.tv/category/entertainment/feed/',
           (news) => setState(() {
         _AbtakkNewsItems = news;
@@ -207,7 +210,7 @@ List<Map<String, dynamic>> _geoNewsItems = [];
 
   Future<void> _fetchPakistanTodayNews() async {
     await _fetchNews('Pakistan Today',
-      
+
       'https://www.pakistantoday.com.pk/category/world/feed/',
           (news) => setState(() {
         _PakistanTodayNewsItems = news;
@@ -218,7 +221,7 @@ List<Map<String, dynamic>> _geoNewsItems = [];
 
   Future<void> _fetchGoogleNews() async {
     await _fetchNews('Google News',
-      
+
       'https://news.google.com/rss/topics/CAAqKggKIiRDQkFTRlFvSUwyMHZNREpxYW5RU0JXVnVMVWRDR2dKUVN5Z0FQAQ?hl=en-PK&gl=PK&ceid=PK%3Aen&oc=11',
           (news) => setState(() {
         _googleNewsItems = news;
@@ -233,7 +236,7 @@ List<Map<String, dynamic>> _geoNewsItems = [];
 
       // First Link
       await _fetchNews('Express Tribune',
-        
+
         'https://tribune.com.pk/feed/entertainment',
             (news) {
           combinedNews.addAll(news);
@@ -242,7 +245,7 @@ List<Map<String, dynamic>> _geoNewsItems = [];
 
       // Second Link
       await _fetchNews('Express Tribune',
-        
+
         'https://tribune.com.pk/feed/style',
             (news) {
           combinedNews.addAll(news);
@@ -273,7 +276,7 @@ List<Map<String, dynamic>> _geoNewsItems = [];
 
       // First Link
       await _fetchNews("Bol News",
-        
+
         'https://www.bolnews.com/entertainment/feed/',
             (news) {
           combinedNews.addAll(news);
@@ -282,35 +285,35 @@ List<Map<String, dynamic>> _geoNewsItems = [];
 
       // Second Link
       await _fetchNews("Bol News",
-        
+
         'https://www.bolnews.com/entertainment/feed/?paged=2',
             (news) {
           combinedNews.addAll(news);
         },
       );
       await _fetchNews("Bol News",
-        
+
         'https://www.bolnews.com/entertainment/feed/?paged=3',
             (news) {
           combinedNews.addAll(news);
         },
       );
       await _fetchNews("Bol News",
-        
+
         'https://www.bolnews.com/entertainment/feed/?paged=4',
             (news) {
           combinedNews.addAll(news);
         },
       );
       await _fetchNews("Bol News",
-        
+
         'https://www.bolnews.com/entertainment/feed/?paged=5',
             (news) {
           combinedNews.addAll(news);
         },
       );
       await _fetchNews("Bol News",
-        
+
         'https://www.bolnews.com/entertainment/feed/?paged=6',
             (news) {
           combinedNews.addAll(news);
@@ -335,7 +338,7 @@ List<Map<String, dynamic>> _geoNewsItems = [];
 
       // First Link
       await _fetchNews("Hum News",
-        
+
         'https://humnews.pk/lifestyle/feed/',
             (news) {
           combinedNews.addAll(news);
@@ -344,28 +347,28 @@ List<Map<String, dynamic>> _geoNewsItems = [];
 
       // Second Link
       await _fetchNews("Hum News",
-        
+
         'https://humnews.pk/lifestyle/feed/?paged=2',
             (news) {
           combinedNews.addAll(news);
         },
       );
       await _fetchNews("Hum News",
-        
+
         'https://humnews.pk/lifestyle/feed/?paged=3',
             (news) {
           combinedNews.addAll(news);
         },
       );
       await _fetchNews("Hum News",
-        
+
         'https://humnews.pk/lifestyle/feed/?paged=4',
             (news) {
           combinedNews.addAll(news);
         },
       );
       await _fetchNews("Hum News",
-        
+
         'https://humnews.pk/lifestyle/feed/?paged=5',
             (news) {
           combinedNews.addAll(news);
@@ -402,7 +405,7 @@ List<Map<String, dynamic>> _geoNewsItems = [];
         final allCommentsQuery = await FirebaseFirestore.instance
             .collection('comments')
             .where('channel',
-                isEqualTo: channel) // Ensure "channel" exists in comments
+            isEqualTo: channel) // Ensure "channel" exists in comments
             .get();
 
         // Step 2: Group comments by articleTitle and calculate average sentiment
@@ -416,14 +419,14 @@ List<Map<String, dynamic>> _geoNewsItems = [];
           if (articleTitle.isNotEmpty) {
             groupedComments.putIfAbsent(
                 articleTitle,
-                () => {
-                      'comments': [],
-                      'sentimentCount': {
-                        'positive': 0,
-                        'negative': 0,
-                        'neutral': 0
-                      }
-                    });
+                    () => {
+                  'comments': [],
+                  'sentimentCount': {
+                    'positive': 0,
+                    'negative': 0,
+                    'neutral': 0
+                  }
+                });
 
             // Add the comment
             groupedComments[articleTitle]?['comments'].add({
@@ -437,7 +440,7 @@ List<Map<String, dynamic>> _geoNewsItems = [];
             // Update sentiment count
             groupedComments[articleTitle]?['sentimentCount'][sentiment] =
                 (groupedComments[articleTitle]?['sentimentCount'][sentiment] ??
-                        0) +
+                    0) +
                     1;
           }
         }
@@ -469,8 +472,8 @@ List<Map<String, dynamic>> _geoNewsItems = [];
           String imageUrl = '';
           final mediaContent = item.findElements('media:content').firstOrNull?.getAttribute('url');
           final enclosure = item.findElements('enclosure').firstOrNull?.getAttribute('url');
-     final categoryElements = item.findAllElements('category');
-              final categories = categoryElements.map((e) => e.text).toList();
+          final categoryElements = item.findAllElements('category');
+          final categories = categoryElements.map((e) => e.text).toList();
 
           if (mediaContent != null && mediaContent.isNotEmpty) {
             imageUrl = mediaContent;
@@ -484,7 +487,7 @@ List<Map<String, dynamic>> _geoNewsItems = [];
             'title': title,
             'link': link,
             'description':
-                stripHtmlTags(description).split('\n').take(2).join(' '),
+            stripHtmlTags(description).split('\n').take(2).join(' '),
             'imageUrl': imageUrl,
             'source': channel,
             'categories': categories,
@@ -565,10 +568,10 @@ List<Map<String, dynamic>> _geoNewsItems = [];
       ),
     );
   }
-Future<String> analyzeSentiment(String commentText) async {
+  Future<String> analyzeSentiment(String commentText) async {
     const String openAiApiUrl = 'https://api.openai.com/v1/chat/completions';
     const String apiKey =
-        'your-key';
+        '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';
 
     final response = await http.post(
       Uri.parse(openAiApiUrl),
@@ -582,12 +585,12 @@ Future<String> analyzeSentiment(String commentText) async {
           {
             'role': 'system',
             'content':
-                'You are an assistant that performs sentiment analysis on text.'
+            'You are an assistant that performs sentiment analysis on text.'
           },
           {
             'role': 'user',
             'content':
-                'Analyze the sentiment of this comment and return only "positive" or "negative" or "neutral": "$commentText"'
+            'Analyze the sentiment of this comment and return only "positive" or "negative" or "neutral": "$commentText"'
           }
         ],
         'max_tokens': 50,
@@ -633,12 +636,36 @@ Future<String> analyzeSentiment(String commentText) async {
   void updateDominantSentiment(List<Map<String, dynamic>> newsItems,
       String articleTitle, String dominantSentiment) {
     final articleIndex =
-        newsItems.indexWhere((article) => article['title'] == articleTitle);
+    newsItems.indexWhere((article) => article['title'] == articleTitle);
     if (articleIndex != -1) {
       newsItems[articleIndex]['dominantSentiment'] = dominantSentiment;
     }
   }
+Future<void> saveArticleForOffline(String title, String url) async {
+    try {
+      // Fetch the full article's content
+      final response = await http.get(Uri.parse(url));
 
+      if (response.statusCode == 200) {
+        // Save the full content along with the title to Firestore
+        await FirebaseFirestore.instance
+            .collection('offline_articles')
+            .doc(title)
+            .set({
+          'title': title,
+          'content': response.body, // Full HTML or text content
+          'timestamp': DateTime.now(),
+        });
+        print('Article saved successfully for offline reading');
+      } else {
+        throw Exception('Failed to load article');
+      }
+    } catch (e) {
+      print('Error saving article: $e');
+    }
+  }
+
+  
 
   Widget _buildCollapsibleSection(String title, List<Map<String, dynamic>> newsItems, bool isLoading) {
     // A list to store the comments and reactions for each news item
@@ -668,7 +695,7 @@ Future<String> analyzeSentiment(String commentText) async {
               itemCount: newsItems.length,
               itemBuilder: (context, index) {
                 final news = newsItems[index];
-
+                print("cat: $news['categories']");
                 return Column(
                   children: [
                     _buildNewsCard(news),
@@ -677,53 +704,369 @@ Future<String> analyzeSentiment(String commentText) async {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            IconButton(
-                              icon: Icon(
-                                Icons.thumb_up,
-                                color: reactions[index] == 1 ? Colors.blue : Colors.grey,
-                              ),
-                              onPressed: () {
-                                setState(() {
-                                  reactions[index] = 1; // Like
-                                });
-                              },
-                            ),
-                            IconButton(
-                              icon: Icon(
-                                Icons.thumb_down,
-                                color: reactions[index] == -1 ? Colors.red : Colors.grey,
-                              ),
-                              onPressed: () {
-                                setState(() {
-                                  reactions[index] = -1; // Dislike
-                                });
-                              },
-                            ),
-                            IconButton(
-                              icon: Icon(
-                                Icons.thumb_up_off_alt,
-                                color: reactions[index] == 0 ? Colors.grey : Colors.grey,
-                              ),
-                              onPressed: () {
-                                setState(() {
-                                  reactions[index] = 0; // Neutral
-                                });
-                              },
-                            ),
-                            IconButton(
-                              icon: Icon(Icons.volume_up, color: Colors.orange),
-                              onPressed: () async {
-                                // Ensure the article text exists, and read it aloud
-                                String articleText = news['articleText'] ?? 'Article content is unavailable.';
-                                await flutterTts.speak(articleText);
-                              },
-                            ),
-                          ],
-                        ),
-                     Text(news['dominantSentiment'])
+                        StreamBuilder<QuerySnapshot>(
+                                        stream: FirebaseFirestore.instance
+                                            .collection('reactions')
+                                            .where("articleTitle",
+                                                isEqualTo: news[
+                                                    'title']) // Assuming news['title'] is the key
+                                            .snapshots(),
+                                        builder: (context, snapshot) {
+                                          // if (snapshot.connectionState ==
+                                          //     ConnectionState.waiting) {
+                                          //   return Row(
+                                          //     mainAxisAlignment:
+                                          //         MainAxisAlignment.start,
+                                          //     children: [
+                                          //       CircularProgressIndicator(),
+                                          //     ],
+                                          //   );
+                                          // }
+
+                                          
+
+                                          if (!snapshot.hasData ||
+                                              snapshot.data!.docs.isEmpty ) {
+                                            return Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              children: [
+                                                IconButton(
+                                                  icon: Icon(
+                                                    FontAwesomeIcons.thumbsUp,
+                                                    color: Colors.green,
+                                                  ),
+                                                  onPressed: () async {
+                                                    try {
+                                                      if (news['title'] ==
+                                                              null ||
+                                                          news['title']!
+                                                              .isEmpty) {
+                                                        throw Exception(
+                                                            "Article title is missing");
+                                                      }
+                                                      final url = news[
+                                                              'url'] ??
+                                                          'No URL available';
+                                                      await firebaseService
+                                                          .saveSentiment(
+                                                        'positive',
+                                                        news['title']!,
+                                                        url,
+                                                      );
+                                                      print(
+                                                          "Sentiment processed successfully!");
+                                                    } catch (e) {
+                                                      print(
+                                                          "Error saving sentiment: $e");
+                                                    }
+                                                  },
+                                                ),
+                                                // Neutral count
+                                                Text(
+                                                  '0',
+                                                  style: TextStyle(
+                                                      color: Colors.grey,
+                                                      fontSize: 14),
+                                                ),
+                                                IconButton(
+                                                  icon: Icon(
+                                                    FontAwesomeIcons.thumbsDown,
+                                                    color: Colors.red,
+                                                  ),
+                                                  onPressed: () async {
+                                                    try {
+                                                      if (news['title'] ==
+                                                              null ||
+                                                          news['title']!
+                                                              .isEmpty) {
+                                                        throw Exception(
+                                                            "Article title is missing");
+                                                      }
+                                                      final url = news[
+                                                              'url'] ??
+                                                          'No URL available';
+                                                      await firebaseService
+                                                          .saveSentiment(
+                                                        'negative',
+                                                        news['title']!,
+                                                        url,
+                                                      );
+                                                      print(
+                                                          "Sentiment processed successfully!");
+                                                    } catch (e) {
+                                                      print(
+                                                          "Error saving sentiment: $e");
+                                                    }
+                                                  },
+                                                ),
+                                                // Neutral count
+                                                Text(
+                                                  '0',
+                                                  style: TextStyle(
+                                                      color: Colors.grey,
+                                                      fontSize: 14),
+                                                ),
+                                                IconButton(
+                                                  icon: Icon(
+                                                    FontAwesomeIcons.meh,
+                                                    color: Colors.grey,
+                                                  ),
+                                                  onPressed: () async {
+                                                    try {
+                                                      if (news['title'] ==
+                                                              null ||
+                                                          news['title']!
+                                                              .isEmpty) {
+                                                        throw Exception(
+                                                            "Article title is missing");
+                                                      }
+                                                      final url = news[
+                                                              'url'] ??
+                                                          'No URL available';
+                                                      await firebaseService
+                                                          .saveSentiment(
+                                                        'neutral',
+                                                        news['title']!,
+                                                        url,
+                                                      );
+                                                      print(
+                                                          "Sentiment processed successfully!");
+                                                    } catch (e) {
+                                                      print(
+                                                          "Error saving sentiment: $e");
+                                                    }
+                                                  },
+                                                ),
+                                                // Neutral count
+                                                Text(
+                                                  '0',
+                                                  style: TextStyle(
+                                                      color: Colors.grey,
+                                                      fontSize: 14),
+                                                ),
+                                                IconButton(
+                                                  icon: Icon(
+                                                    FontAwesomeIcons.download,
+                                                    color: Colors.blueAccent,
+                                                  ),
+                                                  onPressed: () {
+                                                    saveArticleForOffline(
+                                                            news['title']!,
+                                                            news[
+                                                                'fullContent']!)
+                                                        .then((_) {
+                                                      Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              OfflineArticleScreen(
+                                                                  articleId:
+                                                                      news[
+                                                                          'title']!),
+                                                        ),
+                                                      );
+                                                    });
+                                                  },
+                                                ),
+                                              ],
+                                            );
+                                          }
+
+                                          final reactionsData = snapshot.data!.docs.first.data() as Map<String, dynamic>; // Handle the case where there are no reactions (empty collection)
+                                          final reactions =
+                                              reactionsData['reactions']
+                                                  as List<dynamic>?;
+                                          int positiveCount = 0;
+                                          int negativeCount = 0;
+                                          int neutralCount = 0;
+                                          String currentUserReaction =
+                                              'none'; // Default reaction
+
+                                          // Count the reactions and determine current user's reaction
+                                          if (reactions != null) {
+                                            for (var reaction in reactions) {
+                                              if (reaction['sentiment'] ==
+                                                  'positive') {
+                                                positiveCount++;
+                                              } else if (reaction[
+                                                      'sentiment'] ==
+                                                  'negative') {
+                                                negativeCount++;
+                                              } else if (reaction[
+                                                      'sentiment'] ==
+                                                  'neutral') {
+                                                neutralCount++;
+                                              }
+
+                                              // Check if the current user has reacted
+                                              if (reaction['userId'] ==
+                                                  FirebaseAuth.instance
+                                                      .currentUser?.uid) {
+                                                currentUserReaction =
+                                                    reaction['sentiment'];
+                                              }
+                                            }
+                                          }
+                                          return Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            children: [
+                                              IconButton(
+                                                icon: Icon(
+                                                  currentUserReaction ==
+                                                          'positive'
+                                                      ? FontAwesomeIcons
+                                                          .solidThumbsUp
+                                                      : FontAwesomeIcons
+                                                          .thumbsUp,
+                                                  color: Colors.green,
+                                                ),
+                                                onPressed: () async {
+                                                  try {
+                                                    if (news['title'] ==
+                                                            null ||
+                                                        news['title']!
+                                                            .isEmpty) {
+                                                      throw Exception(
+                                                          "Article title is missing");
+                                                    }
+                                                    final url =
+                                                        news['url'] ??
+                                                            'No URL available';
+                                                    await firebaseService
+                                                        .saveSentiment(
+                                                      'positive',
+                                                      news['title']!,
+                                                      url,
+                                                    );
+                                                    print(
+                                                        "Sentiment processed successfully!");
+                                                  } catch (e) {
+                                                    print(
+                                                        "Error saving sentiment: $e");
+                                                  }
+                                                },
+                                              ),
+                                              // Neutral count
+                                              Text(
+                                                '${positiveCount}',
+                                                style: TextStyle(
+                                                    color: Colors.grey,
+                                                    fontSize: 14),
+                                              ),
+                                              IconButton(
+                                                icon: Icon(
+                                                  currentUserReaction ==
+                                                          'negative'
+                                                      ? FontAwesomeIcons
+                                                          .solidThumbsDown
+                                                      : FontAwesomeIcons
+                                                          .thumbsDown,
+                                                  color: Colors.red,
+                                                ),
+                                                onPressed: () async {
+                                                  try {
+                                                    if (news['title'] ==
+                                                            null ||
+                                                        news['title']!
+                                                            .isEmpty) {
+                                                      throw Exception(
+                                                          "Article title is missing");
+                                                    }
+                                                    final url =
+                                                        news['url'] ??
+                                                            'No URL available';
+                                                    await firebaseService
+                                                        .saveSentiment(
+                                                      'negative',
+                                                      news['title']!,
+                                                      url,
+                                                    );
+                                                    print(
+                                                        "Sentiment processed successfully!");
+                                                  } catch (e) {
+                                                    print(
+                                                        "Error saving sentiment: $e");
+                                                  }
+                                                },
+                                              ),
+                                              // Neutral count
+                                              Text(
+                                                '${negativeCount}',
+                                                style: TextStyle(
+                                                    color: Colors.grey,
+                                                    fontSize: 14),
+                                              ),
+                                              IconButton(
+                                                icon: Icon(
+                                                  news['currentUserReaction'] ==
+                                                          'neutral'
+                                                      ? FontAwesomeIcons
+                                                          .solidMeh
+                                                      : FontAwesomeIcons.meh,
+                                                  color: Colors.grey,
+                                                ),
+                                                onPressed: () async {
+                                                  try {
+                                                    if (news['title'] ==
+                                                            null ||
+                                                        news['title']!
+                                                            .isEmpty) {
+                                                      throw Exception(
+                                                          "Article title is missing");
+                                                    }
+                                                    final url =
+                                                        news['url'] ??
+                                                            'No URL available';
+                                                    await firebaseService
+                                                        .saveSentiment(
+                                                      'neutral',
+                                                      news['title']!,
+                                                      url,
+                                                    );
+                                                    print(
+                                                        "Sentiment processed successfully!");
+                                                  } catch (e) {
+                                                    print(
+                                                        "Error saving sentiment: $e");
+                                                  }
+                                                },
+                                              ),
+                                              // Neutral count
+                                              Text(
+                                                '${neutralCount}',
+                                                style: TextStyle(
+                                                    color: Colors.grey,
+                                                    fontSize: 14),
+                                              ),
+                                              IconButton(
+                                                icon: Icon(
+                                                  FontAwesomeIcons.download,
+                                                  color: Colors.blueAccent,
+                                                ),
+                                                onPressed: () {
+                                                  saveArticleForOffline(
+                                                          news['title']!,
+                                                          news[
+                                                              'fullContent']!)
+                                                      .then((_) {
+                                                    Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            OfflineArticleScreen(
+                                                                articleId: news[
+                                                                    'title']!),
+                                                      ),
+                                                    );
+                                                  });
+                                                },
+                                              ),
+                                            ],
+                                          );
+                                        }),
+                                       Text(news['dominantSentiment'] ?? 'neutral')
                       ],
                     ),
 
@@ -746,102 +1089,101 @@ Future<String> analyzeSentiment(String commentText) async {
                       onPressed: () async {
                         // When the user clicks submit, display the comment below
                         if (_commentController.text.length > 0) {
-                                await saveComment(
-                                    FirebaseAuth.instance.currentUser!.uid,
-                                    news['title'],
-                                    _commentController.text,
-                                    news['source']);
-                                _commentController.clear();
-                              }
+                          await saveComment(
+                              FirebaseAuth.instance.currentUser!.uid,
+                              news['title'],
+                              _commentController.text,
+                              news['source']);
+                          _commentController.clear();
+                        }
                       },
                       child: Text('Submit'),
                     ),
                     SizedBox(height: 10),
-                          StreamBuilder<QuerySnapshot>(
-                            stream: FirebaseFirestore.instance
-                                .collection('comments')
-                                .where('articleTitle', isEqualTo: news['title'])
-                                .where('channel', isEqualTo: news['source'])
-                                .orderBy('timestamp', descending: true)
-                                .snapshots(),
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return Center(
-                                    child: CircularProgressIndicator());
-                              }
-                              if (!snapshot.hasData ||
-                                  snapshot.data!.docs.isEmpty) {
-                                Future.microtask(() {
-                                  updateDominantSentiment(
-                                      newsItems, news['title'], 'neutral');
-                                });
-                                return Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Text('No comments yet.'),
-                                );
-                              }
-                              final comments = snapshot.data!.docs;
-                              // Count sentiment values
-                              int positiveCount = 0;
-                              int negativeCount = 0;
-                              int neutralCount = 0;
+                    StreamBuilder<QuerySnapshot>(
+                      stream: FirebaseFirestore.instance
+                          .collection('comments')
+                          .where('articleTitle', isEqualTo: news['title'])
+                          .where('channel', isEqualTo: news['source'])
+                          .orderBy('timestamp', descending: true)
+                          .snapshots(),
+                      builder: (context, snapshot) {
+                        // if (snapshot.connectionState ==
+                        //     ConnectionState.waiting) {
+                        //   return Center(
+                        //       child: CircularProgressIndicator());
+                        // }
+                        if (!snapshot.hasData ||
+                            snapshot.data!.docs.isEmpty) {
 
-                              for (var comment in comments) {
-                                final sentiment =
-                                    comment['sentiment'] ?? 'neutral';
-                                if (sentiment == 'positive') {
-                                  positiveCount++;
-                                } else if (sentiment == 'negative') {
-                                  negativeCount++;
-                                } else {
-                                  neutralCount++;
-                                }
-                              }
+                          return Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text('No comments yet.'),
+                          );
+                        }
+                        final comments = snapshot.data!.docs;
+                        // Count sentiment values
+                        int positiveCount = 0;
+                        int negativeCount = 0;
+                        int neutralCount = 0;
 
-                              // Determine dominant sentiment
-                              print("positive: $positiveCount");
-                              print("negative: $negativeCount");
-                              print("neutral: $neutralCount");
-                              String dominantSentiment = 'neutral';
-                              if (positiveCount >= negativeCount &&
-                                  positiveCount >= neutralCount) {
-                                dominantSentiment = 'positive';
-                              } else if (negativeCount >= positiveCount &&
-                                  negativeCount >= neutralCount) {
-                                dominantSentiment = 'negative';
-                              } else {
-                                dominantSentiment = 'neutral';
-                              }
+                        for (var comment in comments) {
+                          final sentiment =
+                              comment['sentiment'] ?? 'neutral';
+                          if (sentiment == 'positive') {
+                            positiveCount++;
+                          } else if (sentiment == 'negative') {
+                            negativeCount++;
+                          } else {
+                            neutralCount++;
+                          }
+                        }
 
-                              // Update the `dominantSentiment` for the article and reflect it in real-time
-                              Future.microtask(() {
-                                updateDominantSentiment(newsItems,
-                                    news['title'], dominantSentiment);
-                              });
-                              return ListView.builder(
+                        // Determine dominant sentiment
+                        print("positive: $positiveCount");
+                        print("negative: $negativeCount");
+                        print("neutral: $neutralCount");
+                        String dominantSentiment = 'neutral';
+                        if (positiveCount >= negativeCount &&
+                            positiveCount >= neutralCount) {
+                          dominantSentiment = 'positive';
+                        } else if (negativeCount >= positiveCount &&
+                            negativeCount >= neutralCount) {
+                          dominantSentiment = 'negative';
+                        } else {
+                          dominantSentiment = 'neutral';
+                        }
+
+                  // Update the `dominantSentiment` for the article and reflect it in real-time
+                              return ListView(
                                 shrinkWrap: true,
                                 physics: NeverScrollableScrollPhysics(),
-                                itemCount: comments.length,
-                                itemBuilder: (context, index) {
-                                  final comment = comments[index];
-                                  return ListTile(
-                                    title: Text(comment['commentText'] ??
-                                        'No comment text'),
-                                    subtitle: Text(
-                                      comment['timestamp'] != null
-                                          ? (comment['timestamp'] as Timestamp)
-                                              .toDate()
-                                              .toString()
-                                          : '',
-                                      style: TextStyle(fontSize: 12),
-                                    ),
-                                  );
-                                },
+                                children: [
+                                  ExpansionTile(
+                                    initiallyExpanded: false,
+                                    title:
+                                        Text("Comments (${comments.length})"),
+                                    children: comments.map<Widget>((comment) {
+                                      return ListTile(
+                                        title: Text(comment['commentText'] ??
+                                            'No comment text'),
+                                        subtitle: Text(
+                                          comment['timestamp'] != null
+                                              ? (comment['timestamp']
+                                                      as Timestamp)
+                                                  .toDate()
+                                                  .toString()
+                                              : '',
+                                          style: TextStyle(fontSize: 12),
+                                        ),
+                                      );
+                                    }).toList(),
+                                  ),
+                                ],
                               );
-                            },
-                          ),
-                          SizedBox(height: 10),
+                      },
+                    ),
+                    SizedBox(height: 10),
                   ],
                 );
               },
@@ -858,14 +1200,14 @@ Future<String> analyzeSentiment(String commentText) async {
         leading: news['imageUrl']!.isNotEmpty ? Image.network(news['imageUrl']!) : null,
         title: Text(news['title']!),
         subtitle: Text(news['description']!, maxLines: 2, overflow: TextOverflow.ellipsis),
-        onTap: () async => await _launchURL(news['categories'],news['link']!, news['title']!),
+        onTap: () async => await _launchURL(news['categories']!,news['link']!, news['title']!),
       ),
     );
   }
 
   Future<void> _launchURL(List<String> categories, String url, String title) async {
     await FirebaseService().updateUserPreferences(categories);
-   
+
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => ArticleCategScreen(articleUrl: url, title: title)),

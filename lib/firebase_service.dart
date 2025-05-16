@@ -62,11 +62,12 @@ class FirebaseService {
   }
 
   /// Saves a tapped article's title and URL for the current user.
-  Future<void> saveTappedArticle(String articleTitle, String articleUrl) async {
+  Future<void> saveTappedArticle(String articleTitle, String articleUrl, List<String> categories) async {
     User? user = _auth.currentUser;
     if (user != null) {
       String articleContent = await _fetchArticleContent(articleUrl);
       // Save the tapped article under the user's 'tappedArticles' sub-collection
+      await updateUserPreferences(categories);
       await _firestore.collection('users').doc(user.uid).collection('tappedArticles').add(
         {
           'title': articleTitle,
@@ -113,50 +114,84 @@ Future<void> updateUserPreferences(List<String> categories) async {
 }
 
 
-// Function to save sentiment to Firestore
-  Future<void> saveSentiment(String sentiment, String articleTitle, String articleUrl) async {
-    User? user = _auth.currentUser;
+Future<void> saveSentiment(String sentiment, String articleTitle, String articleUrl) async {
+  User? user = _auth.currentUser;
 
-    if (user != null) {
-      try {
-        // Reference to the sentiment collection
-        final sentimentCollection = _firestore
-            .collection('users')
-            .doc(user.uid)
-            .collection('sentiment');
+  if (user != null) {
+    try {
+      // Reference to the sentiment collection
+      final sentimentCollection = _firestore
+          .collection('reactions');
 
-        // Check if there's already a record for the article
-        final querySnapshot = await sentimentCollection
-            .where('articleTitle', isEqualTo: articleTitle)
-            .get();
+      // Check if there's already a record for the article
+      final querySnapshot = await sentimentCollection
+          .where('articleTitle', isEqualTo: articleTitle)
+          .get();
 
-        if (querySnapshot.docs.isNotEmpty) {
-          // If an entry exists, update it
-          final docId = querySnapshot.docs.first.id;
-          await sentimentCollection.doc(docId).set({
-            'articleTitle': articleTitle,
-            'articleUrl': articleUrl,
-            'sentiment': sentiment,
-            'timestamp': FieldValue.serverTimestamp(),
-          });
-          print("Sentiment updated for article: $articleTitle");
+      if (querySnapshot.docs.isNotEmpty) {
+        // If an entry exists, check if the user has already reacted
+        final docId = querySnapshot.docs.first.id;
+        final existingReactions = querySnapshot.docs.first.data()['reactions'] as List<dynamic>;
+
+        // Check if the user has already reacted and with what sentiment
+        final existingReaction = existingReactions.firstWhere(
+          (reaction) => reaction['userId'] == user.uid, 
+          orElse: () => null,
+        );
+
+        if (existingReaction != null) {
+          // If the user has already reacted, update their sentiment if different
+          if (existingReaction['sentiment'] == sentiment) {
+            // If the sentiment is the same, remove the user from the reactions array
+            await sentimentCollection.doc(docId).update({
+              'reactions': FieldValue.arrayRemove([existingReaction]),
+            });
+            print("User ID removed from reactions for article: $articleTitle");
+          } else {
+            // If the sentiment is different, update the user's sentiment
+            await sentimentCollection.doc(docId).update({
+              'reactions': FieldValue.arrayRemove([existingReaction]),
+            });
+
+            // Add the updated reaction to the list
+            await sentimentCollection.doc(docId).update({
+              'reactions': FieldValue.arrayUnion([{
+                'userId': user.uid,
+                'sentiment': sentiment,
+              }]),
+            });
+            print("User's sentiment updated for article: $articleTitle");
+          }
         } else {
-          // If no entry exists, create a new one
-          await sentimentCollection.add({
-            'articleTitle': articleTitle,
-            'articleUrl': articleUrl,
-            'sentiment': sentiment,
-            'timestamp': FieldValue.serverTimestamp(),
+          // If no reaction exists, add a new entry with the user's sentiment
+          await sentimentCollection.doc(docId).update({
+            'reactions': FieldValue.arrayUnion([{
+              'userId': user.uid,
+              'sentiment': sentiment,
+            }]),
           });
           print("New sentiment saved for article: $articleTitle");
         }
-      } catch (e) {
-        print("Error saving sentiment: $e");
+      } else {
+        // If no entry exists for the article, create a new one
+        await sentimentCollection.add({
+          'articleTitle': articleTitle,
+          'articleUrl': articleUrl,
+          'reactions': [{
+            'userId': user.uid,
+            'sentiment': sentiment,
+          }],
+        });
+        print("New sentiment saved for article: $articleTitle");
       }
-    } else {
-      print("Error: No user is logged in");
+    } catch (e) {
+      print("Error saving sentiment: $e");
     }
+  } else {
+    print("Error: No user is logged in");
   }
+}
+
 
   Future<void> saveComment(String userId, String articleTitle, String commentText) async {
     User? user = _auth.currentUser;

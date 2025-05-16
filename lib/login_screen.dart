@@ -1,6 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fori_feed/selection.dart';
+import 'package:fori_feed/service/notification_service.dart';
 import 'signup_screen.dart';
 //import 'news_screen2.dart'; // Import the NewsScreen2.dart
 import 'selection.dart';
@@ -42,10 +44,20 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
-      await _auth.signInWithEmailAndPassword(
+      UserCredential user = await _auth.signInWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
+      final NotificationService _notificationService = NotificationService();
+
+      var token = await _notificationService.getDeviceToken();
+      await FirebaseFirestore.instance
+          .collection("users")
+          .doc(user.user!.uid)
+          .set({
+        'deviceToken': token,
+      }, SetOptions(merge: true));
+
       // Navigate to the News_screen2.dart after successful login
       Navigator.pushReplacement(
         context,
@@ -164,9 +176,11 @@ class _LoginScreenState extends State<LoginScreen> {
                             borderSide: BorderSide(color: Colors.white),
                           ),
                           focusedBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: Colors.white, width: 2),
+                            borderSide:
+                                BorderSide(color: Colors.white, width: 2),
                           ),
-                          prefixIcon: const Icon(Icons.email, color: Colors.white),
+                          prefixIcon:
+                              const Icon(Icons.email, color: Colors.white),
                         ),
                       ),
                       const SizedBox(height: 20),
@@ -183,9 +197,11 @@ class _LoginScreenState extends State<LoginScreen> {
                               borderSide: BorderSide(color: Colors.white),
                             ),
                             focusedBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(color: Colors.white, width: 2),
+                              borderSide:
+                                  BorderSide(color: Colors.white, width: 2),
                             ),
-                            prefixIcon: const Icon(Icons.lock, color: Colors.white),
+                            prefixIcon:
+                                const Icon(Icons.lock, color: Colors.white),
                           ),
                         ),
                       ),
@@ -196,7 +212,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           onPressed: () {
                             // Implement forgot password functionality
                           },
-                          child: const Text('Forgot Password?', style: TextStyle(color: Colors.white)),
+                          child: const Text('Forgot Password?',
+                              style: TextStyle(color: Colors.white)),
                         ),
                       ),
                       const SizedBox(height: 20),
@@ -206,13 +223,16 @@ class _LoginScreenState extends State<LoginScreen> {
                         ElevatedButton(
                           onPressed: _login,
                           style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(horizontal: 120, vertical: 6),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 120, vertical: 6),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(30),
                             ),
                             backgroundColor: Colors.white,
                           ),
-                          child: const Text('Sign in', style: TextStyle(fontSize: 20, color: Colors.blue)),
+                          child: const Text('Sign in',
+                              style:
+                                  TextStyle(fontSize: 20, color: Colors.blue)),
                         ),
                       const SizedBox(height: 20),
                       GestureDetector(
@@ -220,13 +240,17 @@ class _LoginScreenState extends State<LoginScreen> {
                           Navigator.push(
                             context,
                             PageRouteBuilder(
-                              pageBuilder: (context, animation, secondaryAnimation) => const SignupScreen(),
-                              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                              pageBuilder:
+                                  (context, animation, secondaryAnimation) =>
+                                      const SignupScreen(),
+                              transitionsBuilder: (context, animation,
+                                  secondaryAnimation, child) {
                                 const begin = Offset(1.0, 0.0);
                                 const end = Offset.zero;
                                 const curve = Curves.easeInOut;
 
-                                var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+                                var tween = Tween(begin: begin, end: end)
+                                    .chain(CurveTween(curve: curve));
                                 var offsetAnimation = animation.drive(tween);
 
                                 return SlideTransition(
@@ -234,7 +258,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                   child: child,
                                 );
                               },
-                              transitionDuration: const Duration(milliseconds: 600),
+                              transitionDuration:
+                                  const Duration(milliseconds: 600),
                             ),
                           );
                         },

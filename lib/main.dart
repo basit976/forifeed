@@ -8,10 +8,9 @@ import 'package:fori_feed/news_screen.dart';
 import 'package:fori_feed/selection.dart';
 import 'Home_page.dart';
 import 'package:flutter/material.dart';
+import './service/notification_service.dart';
 
 import 'login_screen.dart';
-
-
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,15 +24,18 @@ Future<void> main() async {
         appId: "1:577943125304:web:92d03779123c48434155cd",
         messagingSenderId: "577943125304",
         projectId: "flutterfori",
-        authDomain: "flutterfori.firebaseapp.com",  // Add the authDomain
-        storageBucket: "flutterfori.appspot.com",  // Add the storageBucket
-        databaseURL: "https://flutterfori.firebaseio.com",  // Add the databaseURL
+        authDomain: "flutterfori.firebaseapp.com", // Add the authDomain
+        storageBucket: "flutterfori.appspot.com", // Add the storageBucket
+        databaseURL:
+            "https://flutterfori.firebaseio.com", // Add the databaseURL
       ),
     );
   } else {
     // Mobile initialization (uses google-services.json or GoogleService-Info.plist)
     await Firebase.initializeApp();
   }
+  final notificationService = NotificationService();
+  await notificationService.initialize();
 
   runApp(MyApp());
 }
